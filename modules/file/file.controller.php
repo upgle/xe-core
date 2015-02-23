@@ -626,6 +626,25 @@ class fileController extends file
 			{
 				$oFileModel = getModel('file');
 				$config = $oFileModel->getFileConfig($module_srl);
+
+				// check file type
+				if(isset($config->allowed_filetypes) && $config->allowed_filetypes !== '*.*')
+				{
+					$filetypes = explode(';', $config->allowed_filetypes);
+					$ext = array();
+					foreach($filetypes as $item) {
+						$item = explode('.', $item);
+						$ext[] = strtolower($item[1]);
+					}
+					$uploaded_ext = explode('.', $file_info['name']);
+					$uploaded_ext = strtolower(array_pop($uploaded_ext));
+
+					if(!in_array($uploaded_ext, $ext))
+					{
+						return $this->stop('msg_not_allowed_filetype');
+					}
+				}
+
 				$allowed_filesize = $config->allowed_filesize * 1024 * 1024;
 				$allowed_attach_size = $config->allowed_attach_size * 1024 * 1024;
 				// An error appears if file size exceeds a limit
@@ -758,25 +777,30 @@ class fileController extends file
 	{
 		if(!$file_srl) return;
 
-		$srls = explode(',',$file_srl);
+		$srls = (is_array($file_srl)) ? $file_srl : explode(',', $file_srl);
 		if(!count($srls)) return;
 
 		$oDocumentController = getController('document');
 		$documentSrlList = array();
 
-		for($i=0;$i<count($srls);$i++)
+		foreach($srls as $srl)
 		{
-			$srl = (int)$srls[$i];
-			if(!$srl) continue;
+			$srl = (int)$srl;
+			if(!$srl) 
+			{
+				continue;
+			}
 
-			$args = new stdClass;
+			$args = new stdClass();
 			$args->file_srl = $srl;
 			$output = executeQuery('file.getFile', $args);
 
-			if(!$output->toBool()) continue;
+			if(!$output->toBool() || !$output->data) 
+			{
+				continue;
+			}
 
 			$file_info = $output->data;
-			if(!$file_info) continue;
 
 			if($file_info->upload_target_srl)
 			{
@@ -818,29 +842,34 @@ class fileController extends file
 	{
 		// Get a list of attachements
 		$oFileModel = getModel('file');
-		$columnList = array('uploaded_filename', 'module_srl');
+		$columnList = array('file_srl', 'uploaded_filename', 'module_srl');
 		$file_list = $oFileModel->getFiles($upload_target_srl, $columnList);
 		// Success returned if no attachement exists
 		if(!is_array($file_list)||!count($file_list)) return new Object();
-		// Remove from the DB
-		$args = new stdClass();
-		$args->upload_target_srl = $upload_target_srl;
-		$output = executeQuery('file.deleteFiles', $args);
-		if(!$output->toBool()) return $output;
+
 		// Delete the file
 		$path = array();
 		$file_count = count($file_list);
 		for($i=0;$i<$file_count;$i++)
 		{
-			$uploaded_filename = $file_list[$i]->uploaded_filename;
-			FileHandler::removeFile($uploaded_filename);
-			$module_srl = $file_list[$i]->module_srl;
+			$this->deleteFile($file_list[$i]->file_srl);
 
+			$uploaded_filename = $file_list[$i]->uploaded_filename;
 			$path_info = pathinfo($uploaded_filename);
 			if(!in_array($path_info['dirname'], $path)) $path[] = $path_info['dirname'];
 		}
+
+		// Remove from the DB
+		$args = new stdClass();
+		$args->upload_target_srl = $upload_target_srl;
+		$output = executeQuery('file.deleteFiles', $args);
+		if(!$output->toBool()) return $output;
+		
 		// Remove a file directory of the document
-		for($i=0;$i<count($path);$i++) FileHandler::removeBlankDir($path[$i]);
+		for($i=0, $c=count($path); $i<$c; $i++)
+		{
+			FileHandler::removeBlankDir($path[$i]);
+		}
 
 		return $output;
 	}

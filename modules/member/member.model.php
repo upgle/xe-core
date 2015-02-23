@@ -57,8 +57,8 @@ class memberModel extends member
 		if(!$config->image_name_max_height) $config->image_name_max_height = 20;
 		if(!$config->image_mark_max_width) $config->image_mark_max_width = 20;
 		if(!$config->image_mark_max_height) $config->image_mark_max_height = 20;
-		if(!$config->profile_image_max_width) $config->profile_image_max_width = 80;
-		if(!$config->profile_image_max_height) $config->profile_image_max_height = 80;
+		if(!$config->profile_image_max_width) $config->profile_image_max_width = 90;
+		if(!$config->profile_image_max_height) $config->profile_image_max_height = 90;
 		if(!$config->skin) $config->skin = 'default';
 		if(!$config->colorset) $config->colorset = 'white';
 		if(!$config->editor_skin || $config->editor_skin == 'default') $config->editor_skin = 'xpresseditor';
@@ -138,8 +138,18 @@ class memberModel extends member
 		// When click other's nickname
 		if($member_srl != $logged_info->member_srl && $logged_info->member_srl)
 		{
-			// Send an email
-			if($member_info->email_address)
+			// Get email config
+			foreach($this->module_config->signupForm as $field)
+			{
+				if($field->name == 'email_address')
+				{
+					$email_config = $field;
+					break;
+				}
+			}
+
+			// Send an email only if email address is public
+			if(($logged_info->is_admin == 'Y' || $email_config->isPublic == 'Y') && $member_info->email_address)
 			{
 				$url = 'mailto:'.htmlspecialchars($member_info->email_address, ENT_COMPAT | ENT_HTML401, 'UTF-8', false);
 				$oMemberController->addMemberPopupMenu($url,'cmd_send_email',$icon_path);
