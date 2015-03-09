@@ -5,20 +5,34 @@ XpressEngine
 [![License](http://img.shields.io/badge/license-GNU%20LGPL-brightgreen.svg)](http://www.gnu.org/licenses/gpl.html)
 [![Latest release](http://img.shields.io/github/release/xpressengine/xe-core.svg)](https://github.com/xpressengine/xe-core/releases)
 
-XpressEngine(XE)은 PHP로 작성한 설치형 CMS(Content Management System)입니다.
+XpressEngine(XE)은 누구나 쉽고 편하고 자유롭게 콘텐츠를 발행을 할 수 있도록 하기 위한 CMS(Content Management System)입니다.
 오픈소스 라이선스로 누구나 사용 또는 개작할 수 있으며, 개방형 프로젝트로서 누구나 개발에 참여할 수 있습니다.
+
+
+
+## Server Requirements
+* PHP version 5.3.0 or greater
+* MYSQL version 5.0 or greater
+* XML Library
+* GD Library
+* ICONV (Optional)
 
 ## Support
 * Official sitie (Korean) : http://www.xpressengine.com/
 
-## Maintainers
+## Authors
+### Maintainers
 @akasima @bnu @jhyeon1010 @khongchi @ngleader
 
-## Authors
-<http://www.xpressengine.com/contributors>
+### Contributors
+http://www.xpressengine.com/contributors
 
 ## Contribution Guide
-`CONTRIBUTING.md`파일을 참고하세요.
+
+XpressEngine은 여러분들의 개발 참여를 기다립니다. 많은 분들이 벌써 개발, 디자인, 마크업 등의 전문 분야는 물론 다국어 번역, 문제점 보고 등 기능 개선 및 문제 해결을 위해 많은 노력을 해주셨습니다. 
+
+참여를 원하시는 분들은 버그 신고/제안 혹은 Pull Request 전 [CONTRIBUTING.md](./CONTRIBUTING.md) 문서를 먼저 읽어주시기 바랍니다.
+
 
 ## License
 Copyright 2014 NAVER Corp. <http://www.navercorp.com>
